@@ -4,7 +4,6 @@ help:
 	@echo 'Targets:'
 	@echo 'make dev: make dev for development work'
 	@echo 'make build: make build container'
-	@echo 'make production: docker production build'
 	@echo 'clean: clean for all clear docker images'
 
 dev:
@@ -13,7 +12,7 @@ dev:
 	docker-compose -f docker-compose.yml up --build
 
 build:
-	docker build -f Dockerfile.build
+	docker build -f Dockerfile.build . 
 
 clean:
 	docker-compose -f docker-compose.yml down -v
