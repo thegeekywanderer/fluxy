@@ -6,7 +6,7 @@ import (
 )
 
 // RedisConnection returns a redis connection
-func RedisConnection(config config.RedisConfiguration) (*redis.Client) {
+func RedisConnection(config *config.RedisConfiguration) (*redis.Client) {
 	client := redis.NewClient(&redis.Options{
 		Addr: config.Host,
 		Password: config.Password,

@@ -2,7 +2,6 @@
 package v1
 
 import (
-	"context"
 	"time"
 
 	"github.com/thegeekywanderer/fluxy/models"
@@ -22,7 +21,7 @@ type UseCaseInterface interface{
   GetClient(name string) (models.Client, error)
   UpdateClient(models.Client) (error)
   DeleteClient(name string) (error)
-  VerifyLimit(name string) (bool, error)
+  VerifyLimit(name string) (*Result, error)
 }
 
 // State defines the rate limiter state
@@ -50,5 +49,5 @@ type Result struct {
 
 // Strategy is an interface for rate limiting algorithms. Any rate limiting algorithm that implements this interface can be used with fluxy
 type Strategy interface {
-	Run(ctx context.Context, r *Request) (*Result, error)
+	Run(r *Request) (*Result, error)
 }

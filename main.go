@@ -54,5 +54,5 @@ func main() {
 
 func initClientServer(db *gorm.DB, cache *redis.Client) interfaces.UseCaseInterface{
 	clientRepo := repository.New(db, cache)
-	return usecase.New(clientRepo)
+	return usecase.New(clientRepo, viper.GetString("ALGORITHM"), cache)
 }

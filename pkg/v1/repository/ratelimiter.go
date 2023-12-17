@@ -3,6 +3,7 @@ package repository
 
 import (
 	"encoding/json"
+	"fmt"
 
 	"github.com/go-redis/redis"
 	"github.com/thegeekywanderer/fluxy/models"
@@ -28,7 +29,8 @@ func (repo *Repo) RegisterClient(client models.Client) (models.Client, error){
     return client, err
   }
   json, err := json.Marshal(client)
-  err = repo.cache.Set(client.Name, json, 0).Err()
+  dataKey := fmt.Sprintf("%s-data", client.Name)
+  err = repo.cache.Set(dataKey, json, 0).Err()
   if err != nil {
     return client, err
   }
@@ -51,12 +53,18 @@ func (repo *Repo) UpdateClient(client models.Client) error{
   dbClient.Limit = client.Limit
   dbClient.Duration = client.Duration
   err := repo.db.Save(dbClient).Error
+  json, err := json.Marshal(client)
+  dataKey := fmt.Sprintf("%s-data", client.Name)
+  err = repo.cache.Set(dataKey, json, 0).Err()
+  if err != nil {
+    return err
+  }
   return err
 }
 
 // DeleteClient function deletes an existing client 
 func (repo *Repo) DeleteClient(name string) error{
-  err := repo.db.Where("name = ?", name).Delete(&models.Client{}).Error
+  err := repo.db.Unscoped().Where("name = ?", name).Delete(&models.Client{}).Error
   return err
 }
 

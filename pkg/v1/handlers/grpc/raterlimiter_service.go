@@ -74,16 +74,25 @@ func (s *FluxyServeStruct) DeleteClient(_ context.Context, req *proto.SingleClie
 }
 
 // VerifyLimit function checks if the client is within the rate limit or not
-func (s *FluxyServeStruct) VerifyLimit(_ context.Context, req *proto.SingleClientRequest) (*proto.StateResponse, error) {
+func (s *FluxyServeStruct) VerifyLimit(ctx context.Context, req *proto.SingleClientRequest) (*proto.StateResponse, error) {
 	name := req.GetName()
 	if name == "" {
 		return &proto.StateResponse{}, errors.New("name cannot be blank")
 	}
-	state, err := s.useCase.VerifyLimit(name)
+	res, err := s.useCase.VerifyLimit(name)
 	if err != nil {
 		return &proto.StateResponse{}, err
 	}
-	return &proto.StateResponse{Response: state}, nil
+	allowed := false
+	if res.State == interfaces.Allow {
+		allowed = true
+	}
+
+	return &proto.StateResponse{
+		Allowed: allowed, 
+		TotalRequests: int64(res.TotalRequests), 
+		ExpiresAt: res.ExpiresAt.Unix(),
+	}, nil
 }
 
 func (s *FluxyServeStruct) transformClientRPC(req *proto.ClientRequest) models.Client{

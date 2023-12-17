@@ -1,21 +1,30 @@
+// Package usecase acts as a bridge between the repository and the business logic
 package usecase
 
 import (
+	"encoding/json"
 	"errors"
+	"fmt"
+	"log"
+	"time"
 
+	"github.com/go-redis/redis"
 	"github.com/thegeekywanderer/fluxy/models"
 	interfaces "github.com/thegeekywanderer/fluxy/pkg/v1"
+	algorithm "github.com/thegeekywanderer/fluxy/pkg/v1/algorithms"
 	"gorm.io/gorm"
 )
 
 // UseCase struct
 type UseCase struct {
-  repo interfaces.RepoInterface
+  repo      interfaces.RepoInterface
+  algorithm string
+  cache     *redis.Client 
 }
 
 // New function instantiates a new usecase
-func New(repo interfaces.RepoInterface) interfaces.UseCaseInterface {
-  return &UseCase{repo}
+func New(repo interfaces.RepoInterface, algorithm string, cache *redis.Client) interfaces.UseCaseInterface {
+  return &UseCase{repo, algorithm, cache}
 }
 
 // RegisterClient function creates a new client which was supplied as the argument
@@ -71,6 +80,36 @@ func (uc *UseCase) DeleteClient(name string) error{
 }
 
 // VerifyLimit functions validates the rate limit of the specified client
-func (uc *UseCase) VerifyLimit(name string) (bool, error) {
-  return true, nil
+func (uc *UseCase) VerifyLimit(name string) (*interfaces.Result, error) {
+  strategy, err := algorithm.New(uc.algorithm, uc.cache, time.Now)
+  if err != nil {
+    log.Fatal(err)
+  }
+  dataKey := fmt.Sprintf("%s-data", name)
+  val, err := uc.cache.Get(dataKey).Result()
+  var client models.Client
+  request := interfaces.Request{}
+  if err != nil {
+    client, err = uc.repo.GetClient(name)
+    if err != nil {
+      return nil, err
+    }
+    request.Key = client.Name
+    request.Limit = client.Limit
+    request.Duration = time.Duration(client.Duration) * time.Second
+	}
+
+  err = json.Unmarshal([]byte(val), &client)
+  if err != nil {
+    return nil, err
+  }
+  request.Key = client.Name
+  request.Limit = client.Limit
+  request.Duration = time.Duration(client.Duration) * time.Second
+
+  res, err := strategy.Run(&request)
+  if err != nil {
+    return nil, err
+  }
+  return res, nil
 }
