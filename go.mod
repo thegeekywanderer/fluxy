@@ -4,6 +4,7 @@ go 1.20
 
 require (
 	github.com/go-redis/redis v6.15.9+incompatible
+	github.com/google/uuid v1.4.0
 	github.com/rs/zerolog v1.31.0
 	github.com/spf13/viper v1.18.1
 	google.golang.org/grpc v1.59.0

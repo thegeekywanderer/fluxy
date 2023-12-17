@@ -16,7 +16,10 @@ func New(algorithm string, client *redis.Client, now func() time.Time) (interfac
 			now:    now,
 		}, nil
 	} else if algorithm == "rolling-window" {
-		return &RollingWindow{}, nil
+		return &RollingWindow{
+			client: client,
+			now: 	now,
+		}, nil
 	} 
 	return nil, errors.New("Algorithm not implemented")
 }
