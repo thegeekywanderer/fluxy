@@ -97,6 +97,12 @@ func (uc *UseCase) VerifyLimit(name string) (*interfaces.Result, error) {
     request.Key = client.Name
     request.Limit = client.Limit
     request.Duration = time.Duration(client.Duration) * time.Second
+    json, err := json.Marshal(client)
+    dataKey := fmt.Sprintf("%s-data", client.Name)
+    err = uc.cache.Set(dataKey, json, 0).Err()
+    if err != nil {
+      return nil, err
+    }
 	}
 
   err = json.Unmarshal([]byte(val), &client)
