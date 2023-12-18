@@ -2,6 +2,8 @@
 package config
 
 import (
+	"fmt"
+
 	"github.com/spf13/viper"
 	"github.com/thegeekywanderer/fluxy/logger"
 )
@@ -17,9 +19,10 @@ func SetupConfig() error {
 	var configuration *Configuration
 
 	viper.SetConfigFile(".env")
+	// Check if the .env file exists
 	if err := viper.ReadInConfig(); err != nil {
-		logger.Error("Error to reading config file, %s", err)
-		return err
+		fmt.Println(".env not found")
+		viper.AutomaticEnv() // Allow Viper to read from environment variables
 	}
 
 	err := viper.Unmarshal(&configuration)

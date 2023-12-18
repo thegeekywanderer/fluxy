@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fluxy-deployment
+  labels:
+    app: fluxy
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: fluxy
+  template:
+    metadata:
+      labels:
+        app: fluxy
+    spec:
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.server.port }}
+          envFrom:
+            - configMapRef:
+                name: fluxy-cm
+            - secretRef:
+                name: fluxy-secret
