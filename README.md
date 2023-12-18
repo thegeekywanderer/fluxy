@@ -27,5 +27,12 @@ Utilizing a sorted set with timestamps allows for efficient removal of expired r
 
 Implementing the rolling window algorithm enhances the stability and reliability of rate limiting by adapting better to fluctuating traffic patterns.
 
+## Running Locally
+1. Copy the .env.example to .env
+2. Run `make dev`. Assuming [make](https://sp21.datastructur.es/materials/guides/make-install.html) and [docker-compose](https://docs.docker.com/compose/install/) are installed
+3. Install [Kreya](https://kreya.app/) for making gRPC calls
+4. Import proto file into Kreya - [documentation](https://kreya.app/docs/importers/)
+5. You should see the following UI for interacting with fluxy: ![CleanShot 2023-12-18 at 14 16 13@2x](https://github.com/thegeekywanderer/fluxy/assets/30985448/16852818-15b1-422b-80d8-1c508c6f7572)
+
 ## High level overview of the kubernetes layout for fluxy:
 ![CleanShot 2023-12-18 at 13 41 51](https://github.com/thegeekywanderer/fluxy/assets/30985448/92ad1a49-48fd-46a0-8b40-da4c2750db4f)
